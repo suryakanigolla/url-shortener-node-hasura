@@ -9,7 +9,7 @@ app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use(express.static(path.resolve(__dirname, "./client_url_shortener/dist")));
+app.use(express.static(path.resolve(__dirname, "./client/dist")));
 
 
 module.exports = app
