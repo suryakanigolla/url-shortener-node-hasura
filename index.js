@@ -1,8 +1,82 @@
-import dotenv from "dotenv";
-import express from "express"
-import app from "./app.js";
+require("dotenv").config();
 
-dotenv.config();
+const express = require("express");
+const yup = require("yup");
+const { nanoid } = require("nanoid");
+
+const app = require("./app.js");
+
+const {
+  apolloClient,
+  getUrlQuery,
+  getAllUrls,
+  addUrl,
+} = require("./apollo.js");
+
+const urlSchema = yup.object().shape({
+  slug: yup
+    .string()
+    .trim()
+    .matches(/[\w\-]/),
+  url: yup.string().trim().url().required(),
+});
+
+app.get("/urls", async (req, res) => {
+  try {
+    const data = await apolloClient.request(getAllUrls);
+    res.json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.get("/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const variables = {
+      slug,
+    };
+
+    const data = await apolloClient.request(getUrlQuery, variables);
+    res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/url", async (req, res) => {
+  let { slug, url } = req.body;
+
+  try {
+    await urlSchema.validate({
+      url,
+      slug,
+    });
+
+    if (!slug) {
+      slug = nanoid();
+    }
+
+    slug = slug.toLowerCase();
+
+    const variables = {
+      url,
+      slug,
+    };
+
+    const data = await apolloClient.request(addUrl, variables);
+    res.status(200).json(data);
+  } catch (error) {
+    if (error.message.startsWith("Uniqueness violation")) {
+      return res.status(400).json({ message: "Slug already is being used" });
+    }
+    res.status(400).json({
+      error: error.name,
+      message: error.errors ? error.errors.join("\n") : "Internal Server Error",
+    });
+  }
+});
 
 app.use(express.static("./public"));
 
