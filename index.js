@@ -41,8 +41,14 @@ app.get("/:slug", async (req, res) => {
     const data = await apolloClient.request(getUrlQuery, variables);
     const { urls } = data;
 
-    res.status(200).json(urls);
+    if (urls.length) {
+      const tempUrl = urls[0].url;
+      return res.redirect(tempUrl);
+    }
+
+    return res.redirect("/");
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
@@ -51,14 +57,13 @@ app.post("/url", async (req, res) => {
   let { slug, url } = req.body;
 
   try {
+    if (!slug) {
+      slug = nanoid();
+    }
     await urlSchema.validate({
       url,
       slug,
     });
-
-    if (!slug) {
-      slug = nanoid();
-    }
 
     slug = slug.toLowerCase();
 
