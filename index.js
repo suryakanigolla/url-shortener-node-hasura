@@ -1,8 +1,8 @@
 require("dotenv").config();
 
-const express = require("express");
 const yup = require("yup");
 const { nanoid } = require("nanoid");
+const path = require("path");
 
 const app = require("./app.js");
 
@@ -39,9 +39,11 @@ app.get("/:slug", async (req, res) => {
     };
 
     const data = await apolloClient.request(getUrlQuery, variables);
-    res.status(200).json(data);
+    const { urls } = data;
+
+    res.status(200).json(urls);
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -78,7 +80,9 @@ app.post("/url", async (req, res) => {
   }
 });
 
-app.use(express.static("./public"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "./client_url_shortener/dist", "index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 
