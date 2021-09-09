@@ -4,8 +4,7 @@
   "description": "An url shortener made using Node JS and Hasura",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "nodemon index.js",
     "build": "cd client && npm install && npm run build"
   },
   "repository": {
@@ -32,5 +31,8 @@
     "nanoid": "^3.1.25",
     "nodemon": "^2.0.12",
     "yup": "^0.32.9"
+  },
+  "engines": {
+    "node": "v14.17.6"
   }
 }
