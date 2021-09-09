@@ -1,6 +1,7 @@
 import React from "react";
 
-import { getUrl, shortenUrl, BASE_URL } from "./utils/api";
+import { shortenUrl, BASE_URL } from "./utils/api";
+import { toastMessage, TYPE_SUCCESS, TYPE_ERROR } from "./Toast";
 
 import "./App.css";
 
@@ -8,30 +9,47 @@ function App() {
   const [url, setUrl] = React.useState("");
   const [customSlug, setCustomSlug] = React.useState("");
   const [shortenedLink, setShortenedLink] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleReset = () => {
     setUrl("");
     setCustomSlug("");
   };
 
+  const handleError = (error) => {
+    let message = "";
+    if (error.response) {
+      message = error.response.data.message;
+    } else if (error.request) {
+      console.log(error.request);
+    } else {
+      console.log("Error", error.message);
+    }
+    toastMessage(message.length ? message : "Something went wrong", TYPE_ERROR);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShortenedLink("")
     try {
       const formData = {
         url,
         slug: customSlug,
       };
 
+      setIsLoading(true);
       const submitResponse = await shortenUrl(formData);
       if (submitResponse.status === 200) {
         const { insert_urls_one } = submitResponse.data;
-        setShortenedLink(
-          `${BASE_URL}/${insert_urls_one.slug}`
-        );
+        setShortenedLink(`${BASE_URL}/${insert_urls_one.slug}`);
+        toastMessage("Your link is ready", TYPE_SUCCESS);
       }
       handleReset();
     } catch (error) {
       console.log(error);
+      handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,16 +88,19 @@ function App() {
           </div>
         </form>
       </div>
-      {shortenedLink.length ? (
-        <div className="card">
-          <h2>Here you go 🎊</h2>
-          <p>
-            <a href={shortenedLink} target="_blank">
-              {shortenedLink}
-            </a>
-          </p>
-        </div>
-      ) : null}
+      <div className="card min-h-0">
+        {shortenedLink.length ? (
+          <React.Fragment>
+            <h2>Here you go 🎊</h2>
+            <p>
+              <a href={shortenedLink} target="_blank">
+                {shortenedLink}
+              </a>
+            </p>
+          </React.Fragment>
+        ) : null}
+        {isLoading && <div class="loader-dots">Loading</div>}
+      </div>
     </div>
   );
 }

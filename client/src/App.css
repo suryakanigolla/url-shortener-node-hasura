@@ -54,3 +54,34 @@ input {
 .mr-2 {
     margin-right: 10px;
 }
+
+.loader-dots {
+    padding: 0.5em 2.2em 0.5em 1em;
+    border-radius: .3em;
+    color: black;
+    border: 1px solid #fff;
+    background: rgba(255, 255, 255, 0.2);
+    display: block;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.loader-dots::after {
+    content: '....';
+    width: 0;
+    position: absolute;
+    overflow: hidden;
+    animation: loader-dots-animation 1s infinite;
+}
+
+@keyframes loader-dots-animation {
+    0% {
+        width: 0.0em;
+    }
+    50% {
+        width: 1.2em;
+    }
+    100% {
+        width: 0.0em;
+    }
+}

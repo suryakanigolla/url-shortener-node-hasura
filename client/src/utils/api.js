@@ -10,5 +10,4 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
 });
 
-export const getUrl = (slug) => axiosInstance.get(`/${slug}`);
 export const shortenUrl = (formData) => axiosInstance.post("/url", formData);

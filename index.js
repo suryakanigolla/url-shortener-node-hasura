@@ -21,16 +21,6 @@ const urlSchema = yup.object().shape({
   url: yup.string().trim().url().required(),
 });
 
-app.get("/urls", async (req, res) => {
-  try {
-    const data = await apolloClient.request(getAllUrls);
-    res.json(data);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
 app.get("/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
